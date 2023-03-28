@@ -98,3 +98,79 @@ group by b.name
 having floor(avg(a.sal)) > 1205
 order by floor(avg(a.sal)) desc
 limit 2;
+
+#Step 14 - Extract function with date and time
+select date_2,extract(year from date_2) as year_of_date2,
+extract(month from date_2) as month_of_date2,
+extract(day from date_2) as day_of_date2,
+extract(hour from date_2) as hour_of_date2, 
+extract(minute from date_2) as minute_of_date2, 
+extract(second from date_2) as second_of_date2,
+extract(quarter from date_2) as quarter_of_date2,
+dayname(date_2) as weekday_of_date2
+from check1;
+
+#Step 15 - Joins - Left, right, inner, outer/full outer//full, self
+select * from check1 a 
+inner join check2 b
+on a.roll = b.roll_id;
+
+select * from check1 a 
+left join check2 b
+on a.roll = b.roll_id;
+
+select * from check1 a 
+right join check2 b
+on a.roll = b.roll_id;
+
+select * from check1 a 
+cross join check2 b
+on a.roll = b.roll_id;
+
+select * from check2 a 
+join check2 b
+on a.name = b.name;
+
+#Step 16 - Union and Union all
+select * from check1
+union 
+select * from check1;
+
+select * from check1
+union all
+select * from check1;
+
+#Step 16 - Subquery
+select * from check1
+where roll in (select roll_id from check2 where lower(name) = 'Saffron');
+
+select a.* from check1 a
+where exists (select roll_id,country from check2 b where b.roll_id = a.roll and lower(name) = 'Pink');
+
+#Step 17 - Windows function - aggregate over partition by, ranking over partition by, analytic over partition by
+select b.name,
+sum(ceiling(a.sal)) over (partition by b.name order by b.roll_id) as sum_price_by_name,
+avg(ceiling(a.sal)) over (partition by b.name order by b.roll_id) as sum_price_by_name
+from check1 a 
+inner join check2 b
+on a.roll = b.roll_id;
+
+select *,
+row_number() over (order by a.roll) as rownum_for_all_rows,
+row_number() over (partition by b.name) as rownum_by_name,
+rank() over (order by a.sal) as sal_rank,
+dense_rank() over (order by a.sal) as sal_dense_rank,
+percent_rank() over (order by a.sal) as sal_per_rank
+from check1 a 
+inner join check2 b
+on a.roll = b.roll_id
+order by b.name;
+
+select *,
+first_value(a.sal) over (partition by a.roll order by date_2) as 'first_entry_of_price',
+last_value(a.sal) over (partition by a.roll order by date_2) as 'last_entry_of_price',
+lead(a.date_2) over (order by a.roll) as 'next_value',
+lag(a.date_2) over (order by a.roll) as 'prev_value'
+from check1 a 
+inner join check2 b
+on a.roll = b.roll_id;
