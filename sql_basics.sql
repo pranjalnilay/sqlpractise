@@ -98,11 +98,3 @@ group by b.name
 having floor(avg(a.sal)) > 1205
 order by floor(avg(a.sal)) desc
 limit 2;
-
-
-
-##Step 10 - Use select statment to print 3rd last entry using partition by
-Select * from check1
-row_number() over (partition by id order by date_2 desc) as rn;
-;
-
