@@ -28,6 +28,7 @@ insert into check1 values ('1b','2023-01-31','2023-01-31 09:45:00',1205,2,True),
 insert into check1 values ('1d','2023-01-31','2023-01-31 10:15:00',1204,4,True),('1e','2023-01-31','2023-01-31 10:30:00',1203,5,True);
 insert into check1 values ('1f','2023-01-31','2023-01-31 10:45:00',1210,6,True),('1g','2023-01-31','2023-01-31 11:00:00',1205,7,True);
 insert into check1 values ('1h','2023-01-31','2023-01-31 11:15:00',1209,8,True),('1i','2023-01-31','2023-01-31 11:30:00',1206,9,True);
+insert into check1 values ('1j','2023-01-31','2023-01-31 11:45:00',1209,1,True),('1k','2023-01-31','2023-01-31 12:00:00',1206,3,True);
 
 insert into check2 values(1,'Saffron','India'),(2,'Pink','India'),(3,'Brown','India'),(4,'Saffron','India'),(5,'Pink','India'),(6,'Saffron','India'),
 (7,'Black','India'),(8,'White','India'),(9,'Blue','India');
@@ -124,6 +125,15 @@ right join check2 b
 on a.roll = b.roll_id;
 
 select * from check1 a 
+left outer join check2 b
+on a.roll = b.roll_id
+union
+select * from check1 a 
+right outer join check2 b
+on a.roll = b.roll_id;
+
+
+select * from check1 a 
 cross join check2 b
 on a.roll = b.roll_id;
 
@@ -138,6 +148,10 @@ select * from check1;
 
 select * from check1
 union all
+select * from check1;
+
+select * from check1
+intersect
 select * from check1;
 
 #Step 16 - Subquery
@@ -170,7 +184,44 @@ select *,
 first_value(a.sal) over (partition by a.roll order by date_2) as 'first_entry_of_price',
 last_value(a.sal) over (partition by a.roll order by date_2) as 'last_entry_of_price',
 lead(a.date_2) over (order by a.roll) as 'next_value',
-lag(a.date_2) over (order by a.roll) as 'prev_value'
+lag(a.date_2) over (order by a.roll) as 'prev_value',
+lead(a.date_2,2) over (order by a.roll) as 'next2_value',
+lag(a.date_2,2) over (order by a.roll) as 'prev2_value'
 from check1 a 
 inner join check2 b
 on a.roll = b.roll_id;
+
+#Step 18 - Case Statements or Case Expression
+select *,case 
+when sal < 1205 then 'a' else 'b' end as 'group'
+from check1;
+
+select *,case sal
+when 1205 then 'a' else 'b' end as 'group'
+from check1;
+
+#Step 19 - CTE & Views
+with res as (
+select * from check1)
+select a.* from res a
+;
+
+with res1 as (
+select * from check1),
+res2 as (
+select * from check2)
+select a.*,b.* from res1 a
+inner join res2 b
+on a.roll = b.roll_id;
+
+create view v1 as select roll_id,name from check2;
+
+select * from v1;
+
+#Step 20 - Defining Foreign Key
+alter table check1
+add foreign key (`roll`) references `check2`(`roll_id`)
+; 
+desc check1;
+
+drop database demo_exam;
